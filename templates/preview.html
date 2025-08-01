@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+
+    <title>견적서 미리보기</title>
+    <style>
+body {
+    font-family: 'Malgun Gothic', Arial, sans-serif;
+    margin: 40px;
+    font-size: 14px;
+    color: #333;
+}
+
+
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background-color: #fff;
+  color: #333;
+  padding: 60px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 40px;
+  margin-bottom: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 12px 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+}
+
+tfoot td {
+  border-top: 2px solid #333;
+  font-weight: bold;
+}
+
+.total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+  text-align: right;
+  margin-top: 10px;
+}
+.invoice-header {
+  margin-bottom: 30px;
+}
+
+.brand-name {
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.invoice-title {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 5px 0 0;
+  color: #111;
+}
+
+
+.invoice-body {
+  background-color: #f7f5f2; /* 본문 배경 색상 */
+  padding: 40px;
+}
+    
+    </style>
+</head>
+<body>
+
+<div class="invoice-header">
+  <h1 class="invoice-title">INVOICE</h1>
+    <div class="brand-name">THE HANYOUNG CUSTOMS SERVICES</div>
+
+</div>
+
+<table class="meta">
+    <tr>
+        <td class="title">수신</td><td>{{ company }}</td>
+        <td class="title">발신</td><td>관세법인 한영</td>
+    </tr>
+    <tr>
+        <td class="title">일자</td><td>{{ now.strftime('%Y년 %m월 %d일') }}</td>
+            <td class="title">문서번호</td><td>{{ doc_number }}</td>
+
+    </tr>
+</table>
+
+<p class="footer-note">
+    한영이라는 이름이 기업에게 자산이 될 수 있도록, 
+    언제나 고객의 기대를 뛰어넘는 관세법인 한영이 되겠습니다.
+</p>
+
+<div class="invoice-body">
+
+
+<table class="quote">
+    <thead>
+        <tr>
+            <th>NO</th>
+            <th>상세</th>
+            <th>수량</th>
+            <th>단가 (원)</th>
+            <th>금액 (원)</th>
+        </tr>
+    </thead>
+<tbody>
+    {% for item in services %}
+    <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ item.name }}</td>
+        <td>1</td>
+        <td>{{ "{:,}".format(item.price | int) }}</td>
+        <td>{{ "{:,}".format(item.price | int) }}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+
+</table>
+
+<table class="totals">
+    <tr>
+        <td>합계 : {{ "{:,}".format(total) }} 원</td>
+    </tr>
+    <tr>
+        <td>V.A.T 포함: {{ "{:,}".format(vat_total) }} 원</td>
+    </tr>
+</table>
+
+<table class="bank">
+    <tr>
+        <td><strong>은행명</strong></td>
+        <td>신한은행</td>
+    </tr>
+    <tr>
+        <td><strong>계좌번호</strong></td>
+        <td>140-015-193246</td>
+    </tr>
+    <tr>
+        <td><strong>예금주</strong></td>
+        <td>관세법인 한영 인천지사</td>
+    </tr>
+</table>
+
+<div class="footer">
+    <p><strong>견적 유효기간:</strong> {{ (now + timedelta(days=15)).strftime('%Y-%m-%d') }}</p>
+    <p class="footer-address">
+        인천광역시 서구 이음4로6 KR법조타워 915호<br>
+        (전화) 032-713-4897 | (팩스) 032-713-4898
+    </p>
+</div>
+
+
+<!-- PDF 다운로드 및 다시하기 버튼 -->
+<div class="button-group">
+
+    <!-- 다시하기 버튼 -->
+    <form action="/" method="GET">
+        <button type="submit" class="custom-btn gray">다시하기</button>
+    </form>
+
+<!-- PDF 다운로드 버튼 -->
+<form method="POST" action="/download" target="_blank">
+  <input type="hidden" name="company" value="{{ company }}">
+  <input type="hidden" name="doc_number" value="{{ doc_number }}">
+  {% for item in services %}
+    <input type="hidden" name="service" value="{{ item.name }}">
+    <input type="hidden" name="price" value="{{ item.price }}">
+  {% endfor %}
+  <button type="submit" class="custom-btn">📥 PDF 다운로드</button>
+</form>
+
+<!-- 견적 이력 보기 버튼 -->
+<div style="margin-top: 20px;">
+  <a href="/history" class="custom-btn gray">🗂 견적 이력 보기</a>
+</div>
+
+
+
+
+</div>
+
+</body>
+</html>

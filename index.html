@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>과세자료 제출 컨설팅 견적서</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+    input[type="number"], select { width: 80px; }
+    small { font-size: 0.85em; color: #555; }
+  </style>
+</head>
+<body>
+
+<h2>📋 과세자료 제출 컨설팅 견적서</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>✔ 포함</th>
+      <th>항목</th>
+      <th>선택 / 수량</th>
+      <th>단가</th>
+      <th>합계</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><input type="checkbox" id="includeBase" checked></td>
+      <td><b>거래구조 및 과세자료 제출 범위 검토</b></td>
+      <td>
+        거래처 수: <input type="number" id="partners" value="10"><br>
+        수입금액: 
+        <select id="importAmount">
+          <option value="1">50억 미만</option>
+          <option value="2">50~100억</option>
+          <option value="3">100~200억</option>
+          <option value="4">200~500억</option>
+          <option value="5">500억 이상</option>
+        </select>
+      </td>
+      <td>-</td>
+      <td id="baseCost">0</td>
+    </tr>
+
+    <tr>
+      <td><input type="checkbox" id="includeReason" checked></td>
+      <td><b>과세자료 미제출 사유서 작성 지원</b></td>
+      <td>
+        <label><input type="radio" name="reason" value="basic" checked> 거래 사실 없음</label><br>
+        <label><input type="radio" name="reason" value="missing"> 거래 있음 + 자료 미제출<br>
+        항목 수: <input type="number" id="missingItems" value="0" min="0"></label>
+      </td>
+      <td>기본 100,000 + 항목당 30,000</td>
+      <td id="reasonCost">0</td>
+    </tr>
+
+    <tr>
+      <td><input type="checkbox" id="includeDoc" checked></td>
+      <td><b>과세자료 제출 서류 정비 및 전자제출 대행</b></td>
+      <td>거래처 수: <input type="number" id="docPartners" value="10"></td>
+      <td>50,000원</td>
+      <td id="docCost">0</td>
+    </tr>
+
+    <tr>
+      <td><input type="checkbox" id="includeReport" checked></td>
+      <td><b>과세가격 결정 사유 보고서 작성</b><br><small>(로열티, 생산지원비 등 해당 항목별)</small></td>
+      <td>
+        <label><input type="checkbox" class="priceItem"> 로열티</label><br>
+        <label><input type="checkbox" class="priceItem"> 생산지원비</label><br>
+        <label><input type="checkbox" class="priceItem"> 수수료/중개료</label><br>
+        <label><input type="checkbox" class="priceItem"> 운임/보험료</label><br>
+        <label><input type="checkbox" class="priceItem"> 용기/포장비</label><br>
+        <label><input type="checkbox" class="priceItem"> 사후귀속이익</label><br>
+        <label><input type="checkbox" class="priceItem"> 간접지급금액</label>
+      </td>
+      <td>1,000,000원/항목</td>
+      <td id="priceReportCost">0</td>
+    </tr>
+
+    <tr>
+      <td><input type="checkbox" id="includeRelated" checked></td>
+      <td><b>특수관계자 거래 분석 및 이전가격 검토 리포트</b></td>
+      <td>
+        거래처 수: <input type="number" id="relatedPartners" value="10"><br>
+        수입금액:
+        <select id="relatedImportAmount">
+          <option value="1">50억 미만</option>
+          <option value="2">50~100억</option>
+          <option value="3">100~200억</option>
+          <option value="4">200~500억</option>
+          <option value="5">500억 이상</option>
+        </select>
+      </td>
+      <td>-</td>
+      <td id="relatedCost">0</td>
+    </tr>
+  </tbody>
+
+  <tfoot>
+    <tr>
+      <th colspan="4">총 합계</th>
+      <th id="totalCost">0</th>
+    </tr>
+  </tfoot>
+</table>
+
+<br>
+<button onclick="calculate()">💰 견적 계산하기</button>
+
+<script>
+function calculate() {
+  let total = 0;
+
+  // 기본 검토비용
+  let baseCost = 0;
+  if (document.getElementById("includeBase").checked) {
+    const partners = parseInt(document.getElementById("partners").value);
+    const amountTier = parseInt(document.getElementById("importAmount").value);
+    const baseMatrix = [
+      [300000, 400000, 500000, 600000, 700000],
+      [400000, 500000, 600000, 700000, 800000],
+      [600000, 700000, 800000, 900000, 1000000],
+      [800000, 900000, 1000000, 1100000, 1200000]
+    ];
+    let row = partners <= 10 ? 0 : partners <= 30 ? 1 : partners <= 100 ? 2 : 3;
+    baseCost = baseMatrix[row][amountTier - 1];
+    total += baseCost;
+  }
+  document.getElementById("baseCost").innerText = baseCost.toLocaleString();
+
+  // 미제출 사유서
+  let reasonCost = 0;
+  if (document.getElementById("includeReason").checked) {
+    const reasonType = document.querySelector('input[name="reason"]:checked').value;
+    const missingCount = parseInt(document.getElementById("missingItems").value);
+    reasonCost = reasonType === "basic" ? 100000 : 100000 + (missingCount * 30000);
+    total += reasonCost;
+  }
+  document.getElementById("reasonCost").innerText = reasonCost.toLocaleString();
+
+  // 제출서류 대행
+  let docCost = 0;
+  if (document.getElementById("includeDoc").checked) {
+    const docPartners = parseInt(document.getElementById("docPartners").value);
+    docCost = docPartners * 50000;
+    total += docCost;
+  }
+  document.getElementById("docCost").innerText = docCost.toLocaleString();
+
+  // 과세가격 보고서
+  let reportCost = 0;
+  if (document.getElementById("includeReport").checked) {
+    const checkedItems = document.querySelectorAll(".priceItem:checked").length;
+    reportCost = checkedItems * 1000000;
+    total += reportCost;
+  }
+  document.getElementById("priceReportCost").innerText = reportCost.toLocaleString();
+
+  // 특관 리포트
+  let relatedCost = 0;
+  if (document.getElementById("includeRelated").checked) {
+    const relatedPartners = parseInt(document.getElementById("relatedPartners").value);
+    const relatedTier = parseInt(document.getElementById("relatedImportAmount").value);
+    const relatedMatrix = [
+      [3000000, 4000000, 5000000, 6000000, 7000000],
+      [4000000, 5000000, 6000000, 7000000, 8000000],
+      [5000000, 6000000, 7000000, 8000000, 9000000],
+      [6000000, 7000000, 8000000, 9000000, 10000000]
+    ];
+    let row = relatedPartners <= 10 ? 0 : relatedPartners <= 30 ? 1 : relatedPartners <= 50 ? 2 : 3;
+    relatedCost = relatedMatrix[row][relatedTier - 1];
+    total += relatedCost;
+  }
+  document.getElementById("relatedCost").innerText = relatedCost.toLocaleString();
+
+  document.getElementById("totalCost").innerText = total.toLocaleString();
+}
+</script>
+
+</body>
+</html>

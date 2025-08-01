@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>과세자료 제출 컨설팅 견적서 생성기 - 서비스 선택</title>
+  <style>
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="text"] {
+      padding: 8px;
+      width: 300px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .submit-btn {
+      display: block;
+      margin: 0 auto;
+      background-color: #050725;
+      border: none;
+      padding: 12px 24px;
+      color: white;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    input[type="number"], select {
+      width: 80px;
+    }
+    small {
+      font-size: 0.85em;
+      color: #555;
+    }
+
+    body {
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background-color: #fff;
+  color: #333;
+  padding: 60px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 500;
+  margin-top: 40px;
+  margin-bottom: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 12px 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+}
+
+tfoot td {
+  border-top: 2px solid #333;
+  font-weight: bold;
+}
+
+.total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+  text-align: right;
+  margin-top: 10px;
+}
+
+  </style>
+</head>
+<body>
+  <h1>과세자료 제출 컨설팅 견적서 생성기</h1>
+  <hr>
+  <form method="post" action="/generate">
+    <div class="form-group">
+      <label for="company">회사명:</label>
+      <input type="text" id="company" name="company" required placeholder="회사명을 입력하세요">
+    </div>
+
+    <div class="form-group">
+      <label for="doc_number">문서번호:</label>
+      <input type="text" id="doc_number" name="doc_number" required placeholder="숫자 3자리 입력">
+    </div>
+
+    <h2>서비스 항목 선택</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>✔ 포함</th>
+          <th>항목</th>
+          <th>선택 / 수량</th>
+          <th>단가</th>
+          <th>합계</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" id="includeBase"></td>
+          <td><b>거래구조 및 과세자료 제출 범위 검토</b></td>
+          <td>
+            거래처 수: <input type="number" id="partners" value="10"><br>
+            수입금액: 
+            <select id="importAmount">
+              <option value="1">50억 미만</option>
+              <option value="2">50~100억</option>
+              <option value="3">100~200억</option>
+              <option value="4">200~500억</option>
+              <option value="5">500억 이상</option>
+            </select>
+          </td>
+          <td>-</td>
+          <td id="baseCost">0</td>
+        </tr>
+
+        <tr>
+          <td><input type="checkbox" id="includeReason"></td>
+          <td><b>과세자료 미제출 사유서 작성 지원</b></td>
+          <td>
+            <label><input type="radio" name="reason" value="basic" checked> 거래 사실 없음</label><br>
+            <label><input type="radio" name="reason" value="missing"> 거래 있음 + 자료 미제출<br>
+            항목 수: <input type="number" id="missingItems" value="0" min="0"></label>
+          </td>
+          <td>기본 100,000 + 항목당 30,000</td>
+          <td id="reasonCost">0</td>
+        </tr>
+
+        <tr>
+          <td><input type="checkbox" id="includeDoc"></td>
+          <td><b>과세자료 제출 서류 정비 및 전자제출 대행</b></td>
+          <td>거래처 수: <input type="number" id="docPartners" value="10"></td>
+          <td>50,000원</td>
+          <td id="docCost">0</td>
+        </tr>
+
+        <tr>
+          <td><input type="checkbox" id="includeReport"></td>
+          <td><b>과세가격 결정 사유 보고서 작성</b><br><small>(로열티, 생산지원비 등 해당 항목별)</small></td>
+          <td>
+            <label><input type="checkbox" class="priceItem"> 로열티</label><br>
+            <label><input type="checkbox" class="priceItem"> 생산지원비</label><br>
+            <label><input type="checkbox" class="priceItem"> 수수료/중개료</label><br>
+            <label><input type="checkbox" class="priceItem"> 운임/보험료</label><br>
+            <label><input type="checkbox" class="priceItem"> 용기/포장비</label><br>
+            <label><input type="checkbox" class="priceItem"> 사후귀속이익</label><br>
+            <label><input type="checkbox" class="priceItem"> 간접지급금액</label>
+          </td>
+          <td>1,000,000원/항목</td>
+          <td id="priceReportCost">0</td>
+        </tr>
+
+        <tr>
+          <td><input type="checkbox" id="includeRelated"></td>
+          <td><b>특수관계자 거래 분석 및 이전가격 검토 리포트</b></td>
+          <td>
+            거래처 수: <input type="number" id="relatedPartners" value="10"><br>
+            수입금액:
+            <select id="relatedImportAmount">
+              <option value="1">50억 미만</option>
+              <option value="2">50~100억</option>
+              <option value="3">100~200억</option>
+              <option value="4">200~500억</option>
+              <option value="5">500억 이상</option>
+            </select>
+          </td>
+          <td>-</td>
+          <td id="relatedCost">0</td>
+        </tr>
+      </tbody>
+
+      <tfoot>
+        <tr>
+          <th colspan="4">총 합계</th>
+          <th id="totalCost">0</th>
+        </tr>
+      </tfoot>
+    </table>
+
+    <br>
+    <button type="button" onclick="calculate()">💰 견적 계산하기</button>
+    <br><br>
+    
+    <input type="hidden" name="totalCost" id="hiddenTotalCost">
+    <input type="hidden" name="baseCost" id="hiddenBaseCost">
+    <input type="hidden" name="reasonCost" id="hiddenReasonCost">
+    <input type="hidden" name="docCost" id="hiddenDocCost">
+    <input type="hidden" name="reportCost" id="hiddenReportCost">
+    <input type="hidden" name="relatedCost" id="hiddenRelatedCost">
+
+
+    <button type="submit" class="submit-btn" onclick="calculate()">견적서 생성</button>
+    <div id="serviceInputs"></div>
+
+  </form>
+
+  <script>
+
+function calculate() {
+  let total = 0;
+
+  let baseCost = 0;
+  if (document.getElementById("includeBase").checked) {
+    const partners = parseInt(document.getElementById("partners").value);
+    const amountTier = parseInt(document.getElementById("importAmount").value);
+    const baseMatrix = [
+      [300000, 400000, 500000, 600000, 700000],
+      [400000, 500000, 600000, 700000, 800000],
+      [600000, 700000, 800000, 900000, 1000000],
+      [800000, 900000, 1000000, 1100000, 1200000]
+    ];
+    let row = partners <= 10 ? 0 : partners <= 30 ? 1 : partners <= 100 ? 2 : 3;
+    baseCost = baseMatrix[row][amountTier - 1];
+    total += baseCost;
+  }
+  document.getElementById("baseCost").innerText = baseCost.toLocaleString();
+
+  let reasonCost = 0;
+  if (document.getElementById("includeReason").checked) {
+    const reasonType = document.querySelector('input[name="reason"]:checked').value;
+    const missingCount = parseInt(document.getElementById("missingItems").value);
+    reasonCost = reasonType === "basic" ? 100000 : 100000 + (missingCount * 30000);
+    total += reasonCost;
+  }
+  document.getElementById("reasonCost").innerText = reasonCost.toLocaleString();
+
+  let docCost = 0;
+  if (document.getElementById("includeDoc").checked) {
+    const docPartners = parseInt(document.getElementById("docPartners").value);
+    docCost = docPartners * 50000;
+    total += docCost;
+  }
+  document.getElementById("docCost").innerText = docCost.toLocaleString();
+
+  let reportCost = 0;
+  if (document.getElementById("includeReport").checked) {
+    const checkedItems = document.querySelectorAll(".priceItem:checked").length;
+    reportCost = checkedItems * 1000000;
+    total += reportCost;
+  }
+  document.getElementById("priceReportCost").innerText = reportCost.toLocaleString();
+
+  let relatedCost = 0;
+  if (document.getElementById("includeRelated").checked) {
+    const relatedPartners = parseInt(document.getElementById("relatedPartners").value);
+    const relatedTier = parseInt(document.getElementById("relatedImportAmount").value);
+    const relatedMatrix = [
+      [3000000, 4000000, 5000000, 6000000, 7000000],
+      [4000000, 5000000, 6000000, 7000000, 8000000],
+      [5000000, 6000000, 7000000, 8000000, 9000000],
+      [6000000, 7000000, 8000000, 9000000, 10000000]
+    ];
+    let row = relatedPartners <= 10 ? 0 : relatedPartners <= 30 ? 1 : relatedPartners <= 50 ? 2 : 3;
+    relatedCost = relatedMatrix[row][relatedTier - 1];
+    total += relatedCost;
+  }
+  document.getElementById("relatedCost").innerText = relatedCost.toLocaleString();
+
+  // 👉 총합 텍스트 업데이트
+  document.getElementById("totalCost").innerText = total.toLocaleString();
+
+  // 👉 숨겨진 input 값 업데이트
+  document.getElementById("hiddenTotalCost").value = total;
+  document.getElementById("hiddenBaseCost").value = baseCost;
+  document.getElementById("hiddenReasonCost").value = reasonCost;
+  document.getElementById("hiddenDocCost").value = docCost;
+  document.getElementById("hiddenReportCost").value = reportCost;
+  document.getElementById("hiddenRelatedCost").value = relatedCost;
+
+const serviceInputs = document.getElementById("serviceInputs");
+serviceInputs.innerHTML = ""; // 초기화
+
+if (document.getElementById("includeBase").checked) {
+  const label = "거래구조 및 과세자료 제출 범위 검토";
+  serviceInputs.innerHTML += `<input type="hidden" name="service" value="${label}">`;
+  serviceInputs.innerHTML += `<input type="hidden" name="price" value="${baseCost}">`;
+}
+
+if (document.getElementById("includeReason").checked) {
+  const label = "과세자료 미제출 사유서 작성 지원";
+  serviceInputs.innerHTML += `<input type="hidden" name="service" value="${label}">`;
+  serviceInputs.innerHTML += `<input type="hidden" name="price" value="${reasonCost}">`;
+}
+
+if (document.getElementById("includeDoc").checked) {
+  const label = "과세자료 제출 서류 정비 및 전자제출 대행";
+  serviceInputs.innerHTML += `<input type="hidden" name="service" value="${label}">`;
+  serviceInputs.innerHTML += `<input type="hidden" name="price" value="${docCost}">`;
+}
+
+if (document.getElementById("includeReport").checked) {
+  const label = "과세가격 결정 사유 보고서 작성";
+  serviceInputs.innerHTML += `<input type="hidden" name="service" value="${label}">`;
+  serviceInputs.innerHTML += `<input type="hidden" name="price" value="${reportCost}">`;
+}
+
+if (document.getElementById("includeRelated").checked) {
+  const label = "특수관계자 거래 분석 및 이전가격 검토 리포트";
+  serviceInputs.innerHTML += `<input type="hidden" name="service" value="${label}">`;
+  serviceInputs.innerHTML += `<input type="hidden" name="price" value="${relatedCost}">`;
+}
+
+
+}
+
+
+  </script>
+</body>
+</html>

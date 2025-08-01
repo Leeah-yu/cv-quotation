@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>견적서 이력 조회</title>
+  <style>
+    body {
+      font-family: 'Pretendard', '맑은 고딕', sans-serif;
+      margin: 30px;
+    }
+    h2 {
+      text-align: center;
+    }
+    .notice {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 12pt;
+      color: #666;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14pt;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .status {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h2>📑 과세자료 컨설팅 견적서 이력</h2>
+
+  {% if filename %}
+  <div class="notice">
+    ✅ PDF 저장 완료: <strong>{{ filename }}</strong>
+  </div>
+  {% endif %}
+
+  <table>
+    <thead>
+      <tr>
+        <th>문서번호</th>
+        <th>생성일시</th>
+        <th>회사명</th>
+        <th>견적합계 (₩)</th>
+        <th>수임여부</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for q in quotes %}
+      <tr>
+        <td>{{ q["문서번호"] }}</td>
+        <td>{{ q["생성일시"] }}</td>
+        <td>{{ q["회사명"] }}</td>
+        <td>{{ q["견적합계"] }}</td>
+        <td class="status">{{ q["수임여부"] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
